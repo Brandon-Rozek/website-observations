@@ -1,0 +1,35 @@
+name: Sync Observations from iNaturalist
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "12 23 * * *"
+
+jobs:
+  build_and_publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup git config
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
+
+      - name: Grab latest observations
+        run: |
+          ./.scripts/refreshobservations.py
+
+      - name: Check if there's any changes
+        id: verify_diff
+        run: |
+          git diff --quiet . || echo "changed=true" >> $GITHUB_OUTPUT
+
+      - name: Commit and push
+        if: steps.verify_diff.outputs.changed == 'true'
+        run: |
+          git add *.md
+          git commit -m "New/Modified Observations"
+          git push origin gh_actions
