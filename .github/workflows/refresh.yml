@@ -32,4 +32,4 @@ jobs:
         run: |
           git add *.md
           git commit -m "New/Modified Observations"
-          git push origin gh_actions
+          git push origin main
